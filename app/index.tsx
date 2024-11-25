@@ -204,7 +204,6 @@ const FolderBar: React.FC<FolderBarProps> = ({ folders, setFolders }) => {
 
       {/* Confirmation Modal for Deleting Folder */}
       <Modal
-        animationType="slide"
         transparent={true}
         visible={deleteModalVisible} // Bind to delete modal visibility
         onRequestClose={() => setDeleteModalVisible(false)}
@@ -214,7 +213,7 @@ const FolderBar: React.FC<FolderBarProps> = ({ folders, setFolders }) => {
             flex: 1,
             justifyContent: "center",
             alignItems: "center",
-            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            backgroundColor: "rgba(0, 0, 0, 0.1)",
           }}
         >
           <View
@@ -222,20 +221,41 @@ const FolderBar: React.FC<FolderBarProps> = ({ folders, setFolders }) => {
               width: 300,
               backgroundColor: "white",
               borderRadius: 10,
-              padding: 20,
               alignItems: "center",
+              overflow: 'hidden',
+              borderColor: 'lightgray',
+              borderWidth: 1,
+
             }}
           >
-            <Text style={{ marginBottom: 20 }}>
+            <Text style={{ marginBottom: 20, padding: 20, }}>
               Are you sure you want to delete "{selectedFolder}"?
             </Text>
-            <View style={{ flexDirection: "row", justifyContent: "space-around" }}>
-              <Button
-                title="Cancel"
+            <View style={{ flexDirection: "row", justifyContent: "center" }}>
+              <Pressable
+
                 onPress={() => setDeleteModalVisible(false)}
-                color="gray"
-              />
-              <Button title="Delete" onPress={confirmDelete} color="red" />
+                style={{
+                  backgroundColor: 'white',
+                  padding: 20,
+                  width: '50%',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderTopColor: 'lightgray',
+                  borderTopWidth: 1,
+                }}
+              ><Text>Cancel</Text></Pressable>
+              <Pressable onPress={confirmDelete} style={{
+                backgroundColor: 'white',
+                padding: 20,
+                width: '50%',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderTopColor: 'lightgray',
+                borderLeftColor: 'lightgray',
+                borderTopWidth: 1,
+                borderLeftWidth: 1,
+              }}><Text style={{ color: 'red' }}>Delete</Text></Pressable>
             </View>
           </View>
         </View>
@@ -243,7 +263,6 @@ const FolderBar: React.FC<FolderBarProps> = ({ folders, setFolders }) => {
 
       {/* Modal for Creating New Folder */}
       <Modal
-        animationType="slide"
         transparent={true}
         visible={createModalVisible} // Bind to create modal visibility
         onRequestClose={() => setCreateModalVisible(false)}
@@ -253,7 +272,7 @@ const FolderBar: React.FC<FolderBarProps> = ({ folders, setFolders }) => {
             flex: 1,
             justifyContent: "center",
             alignItems: "center",
-            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            backgroundColor: "rgba(0, 0, 0, 0.1)",
           }}
         >
           <View
@@ -261,30 +280,60 @@ const FolderBar: React.FC<FolderBarProps> = ({ folders, setFolders }) => {
               width: 300,
               backgroundColor: "white",
               borderRadius: 10,
-              padding: 20,
               alignItems: "center",
+              overflow: 'hidden',
+              borderColor: 'lightgray',
+              borderWidth: 1,
+
             }}
           >
-            <Text style={{ marginBottom: 20 }}>Enter new folder name:</Text>
-            <TextInput
-              value={newFolderName}
-              onChangeText={setNewFolderName}
-              placeholder="Folder Name"
-              style={{
-                borderWidth: 1,
-                borderColor: 'lightgray',
-                width: '100%',
-                marginBottom: 20,
-                padding: 10,
-              }}
-            />
-            <View style={{ flexDirection: "row", justifyContent: "space-around" }}>
-              <Button
-                title="Cancel"
-                onPress={() => setCreateModalVisible(false)}
-                color="gray"
+            <View style={{
+              padding: 20,
+              width: '90%'
+            }}>
+              <TextInput
+                value={newFolderName}
+                onChangeText={setNewFolderName}
+                placeholder="Folder Name"
+                style={{
+                  borderWidth: 1,
+                  borderColor: 'lightgray',
+                  width: '100%',
+                  fontWeight: '600',
+                  borderRadius: 20,
+                  marginBottom: 20,
+                  padding: 20,
+                }}
               />
-              <Button title="Create" onPress={createNewFolder} color="blue" />
+            </View>
+            <View style={{ flexDirection: "row", justifyContent: "center" }}>
+              <Pressable
+                onPress={() => setCreateModalVisible(false)}
+                style={{
+                  backgroundColor: 'white',
+                  padding: 20,
+                  width: '50%',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderTopColor: 'lightgray',
+                  borderTopWidth: 1,
+                }}
+              ><Text style={{
+                color: 'red',
+              }}>Cancel</Text></Pressable>
+              <Pressable onPress={createNewFolder} style={{
+                backgroundColor: 'white',
+                padding: 20,
+                width: '50%',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderTopColor: 'lightgray',
+                borderLeftColor: 'lightgray',
+                borderTopWidth: 1,
+                borderLeftWidth: 1,
+              }}><Text style={{
+                color: 'darkblue',
+              }}>Create Folder</Text></Pressable>
             </View>
           </View>
         </View>

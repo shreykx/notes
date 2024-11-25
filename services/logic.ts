@@ -68,12 +68,15 @@ export async function create_note_in_folder(note_title: string, note_text: strin
     const data = await readData();
 
     const note_id = `note_${new Date().getTime()}`;
+
+    
     const note = {
         note_id: note_id,
         note_title: note_title,
         note_text: note_text,
         date_of_note: note_date,
     };
+    
 
     if (!data[folder_name]) {
         data[folder_name] = {};
