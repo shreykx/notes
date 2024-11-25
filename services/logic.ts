@@ -64,15 +64,15 @@ export async function get_all_notes_in_folder(folder_name: string) {
     return data[folder_name] ? Object.keys(data[folder_name]) : [];
 }
 
-export async function create_note_in_folder(note_title: string, note_text: string, note_data: string, folder_name: string) {
+export async function create_note_in_folder(note_title: string, note_text: string, note_date: string, folder_name: string) {
     const data = await readData();
 
     const note_id = `note_${new Date().getTime()}`;
     const note = {
-        note_id,
-        note_title,
-        note_text,
-        date_of_note: note_data,
+        note_id: note_id,
+        note_title: note_title,
+        note_text: note_text,
+        date_of_note: note_date,
     };
 
     if (!data[folder_name]) {
@@ -104,4 +104,14 @@ export async function get_all_notes() {
     }
 
     return allNotes;
+}
+
+async function delete_all_notes() {
+    try {
+        // Write an empty object to clear all notes
+        await writeData({});
+        console.log("All notes have been deleted.");
+    } catch (error) {
+        console.error('Error deleting all notes:', error);
+    }
 }

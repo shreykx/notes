@@ -1,36 +1,41 @@
-import { View, ScrollView, Pressable, Text, Modal, Button, StyleSheet } from "react-native";
+import { View, ScrollView, Pressable, Text, Modal, Button, StyleSheet, TextInput } from "react-native";
 import Feather from '@expo/vector-icons/Feather';
 import React from "react";
 import { router } from "expo-router";
-import { get_all_folder_names, get_all_notes, delete_folder } from "@/services/logic";
+import { get_all_folder_names, get_all_notes, delete_folder, make_new_folder } from "@/services/logic";
 
 
 interface Note {
   note_id: string;
   note_title: string;
   note_folder: string;
-  note_content: string;
+  note_text: string;
   note_timing: string;
-  note_tags: string[];
 }
 
 export default function Index() {
   const [folders, setFolders] = React.useState<string[]>(['favs', 'lols']) // Changed the type to string array
-  const [notes, setNotes] = React.useState<Note[]>([
-    {
-      note_id: '1',
-      note_title: 'Sample Title',
-      note_folder: 'General',
-      note_content: 'This is a sample note.',
-      note_timing: '2024-11-25T00:00:00',
-      note_tags: ['tag1', 'tag2'],
-    },
-  ]);
+  const [notes, setNotes] = React.useState<Note[]>([]);
   const fetchFolders = async () => {
     const folderNames = await get_all_folder_names()
     setFolders(folderNames)
   }
-  fetchFolders()
+  const fetchNotes = async () => {
+    const allNotes = await get_all_notes();
+    console.log(allNotes);
+    setNotes(allNotes);
+    return;
+  }
+  const fetchData = async () => {
+    await fetchFolders();
+    await fetchNotes();
+  };
+  React.useEffect(() => {
+
+
+    fetchData();
+  }, []); // Empty dependency array to run only on mount
+
   return (
     <View
       style={{
@@ -39,7 +44,7 @@ export default function Index() {
       }}
     >
       <Navbar />
-      <FolderBar folders={folders} />
+      <FolderBar folders={folders} setFolders={setFolders} />
       <NotesDisplay notes={notes} />
       <View style={{
         position: 'absolute',
@@ -114,25 +119,38 @@ const Navbar = () => {
     </View>
   </View>)
 }
-
 interface FolderBarProps {
   folders: string[]; // Adjusted the type to string array
+  setFolders: React.Dispatch<React.SetStateAction<string[]>>; // Added setFolders
 }
-const FolderBar: React.FC<FolderBarProps> = ({ folders }) => {
-  const [modalVisible, setModalVisible] = React.useState(false);
+const FolderBar: React.FC<FolderBarProps> = ({ folders, setFolders }) => {
+  const [deleteModalVisible, setDeleteModalVisible] = React.useState(false); // Separate modal for deletion
+  const [createModalVisible, setCreateModalVisible] = React.useState(false); // Separate modal for creating
   const [selectedFolder, setSelectedFolder] = React.useState<string | null>(null);
+  const [newFolderName, setNewFolderName] = React.useState<string>(''); // New state for folder name
 
   const handleLongPress = (folderName: string) => {
     setSelectedFolder(folderName);
-    setModalVisible(true);
+    setDeleteModalVisible(true); // Open delete modal
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (selectedFolder) {
-      delete_folder(selectedFolder);
-      // Optional: Refresh folders or handle state update here.
+      await delete_folder(selectedFolder); // Ensure delete_folder is awaited
       setSelectedFolder(null);
-      setModalVisible(false);
+      setDeleteModalVisible(false); // Close delete modal
+      const updatedFolderNames = await get_all_folder_names(); // Fetch updated folders
+      setFolders(updatedFolderNames);
+    }
+  };
+
+  const createNewFolder = async () => {
+    if (newFolderName.trim()) {
+      await make_new_folder(newFolderName); // Call to create a new folder
+      setNewFolderName(''); // Clear the input
+      setCreateModalVisible(false); // Close the modal
+      const updatedFolderNames = await get_all_folder_names(); // Fetch updated folder names
+      setFolders(updatedFolderNames);
     }
   };
 
@@ -144,6 +162,7 @@ const FolderBar: React.FC<FolderBarProps> = ({ folders }) => {
         showsHorizontalScrollIndicator={false}
       >
         <Pressable
+          onPress={() => setCreateModalVisible(true)} // Open create modal
           style={({ pressed }) => [
             {
               borderRadius: 24,
@@ -183,12 +202,12 @@ const FolderBar: React.FC<FolderBarProps> = ({ folders }) => {
         ))}
       </ScrollView>
 
-      {/* Confirmation Modal */}
+      {/* Confirmation Modal for Deleting Folder */}
       <Modal
         animationType="slide"
         transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
+        visible={deleteModalVisible} // Bind to delete modal visibility
+        onRequestClose={() => setDeleteModalVisible(false)}
       >
         <View
           style={{
@@ -213,10 +232,59 @@ const FolderBar: React.FC<FolderBarProps> = ({ folders }) => {
             <View style={{ flexDirection: "row", justifyContent: "space-around" }}>
               <Button
                 title="Cancel"
-                onPress={() => setModalVisible(false)}
+                onPress={() => setDeleteModalVisible(false)}
                 color="gray"
               />
               <Button title="Delete" onPress={confirmDelete} color="red" />
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Modal for Creating New Folder */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={createModalVisible} // Bind to create modal visibility
+        onRequestClose={() => setCreateModalVisible(false)}
+      >
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+          }}
+        >
+          <View
+            style={{
+              width: 300,
+              backgroundColor: "white",
+              borderRadius: 10,
+              padding: 20,
+              alignItems: "center",
+            }}
+          >
+            <Text style={{ marginBottom: 20 }}>Enter new folder name:</Text>
+            <TextInput
+              value={newFolderName}
+              onChangeText={setNewFolderName}
+              placeholder="Folder Name"
+              style={{
+                borderWidth: 1,
+                borderColor: 'lightgray',
+                width: '100%',
+                marginBottom: 20,
+                padding: 10,
+              }}
+            />
+            <View style={{ flexDirection: "row", justifyContent: "space-around" }}>
+              <Button
+                title="Cancel"
+                onPress={() => setCreateModalVisible(false)}
+                color="gray"
+              />
+              <Button title="Create" onPress={createNewFolder} color="blue" />
             </View>
           </View>
         </View>
@@ -230,7 +298,7 @@ interface NotesDisplayProps {
 }
 const NotesDisplay: React.FC<NotesDisplayProps> = ({ notes }) => {
   return (
-    <View style={{ padding: 10 }}>
+    <ScrollView style={{ padding: 10, paddingBottom: 20, }}>
       {notes.map((note) => (
         <Pressable
           key={note.note_id}
@@ -240,6 +308,7 @@ const NotesDisplay: React.FC<NotesDisplayProps> = ({ notes }) => {
               borderRadius: 24,
               borderWidth: 1,
               padding: 10,
+              marginBottom: 4,
               flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
@@ -263,11 +332,11 @@ const NotesDisplay: React.FC<NotesDisplayProps> = ({ notes }) => {
               color: 'gray',
             }}
           >
-            {note.note_content}
+            {note.note_text}
           </Text>
         </Pressable>
       ))}
-    </View>
+    </ScrollView>
   );
 };
 

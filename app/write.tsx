@@ -18,6 +18,27 @@ const Write: React.FC = () => {
         const folderNames = await get_all_folder_names()
         setFolders(folderNames)
     }
+    const HandleSaveNote = async () => {
+        if (!noteTitle.trim()) {
+            console.log('Error', 'Note title cannot be empty.')
+            return
+        }
+
+        if (!selectedFolder) {
+            console.log('Error', 'Please select a folder.')
+            return
+        }
+
+        try {
+            const noteDate = new Date().toISOString()
+            await create_note_in_folder(noteTitle, noteText, noteDate, selectedFolder); // Use proper parameter names
+            console.log('Success', 'Note saved successfully.')
+            setModalVisible(false)
+            router.back()
+        } catch (error) {
+            console.log('Error', 'Failed to save note. Please try again.')
+        }
+    }
     return (<SafeAreaView>
 
 
