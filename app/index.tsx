@@ -2,7 +2,7 @@ import { View, ScrollView, Pressable, Text, Modal, Button, StyleSheet, TextInput
 import Feather from '@expo/vector-icons/Feather';
 import React from "react";
 import { router } from "expo-router";
-import { get_all_folder_names, get_all_notes, delete_folder, make_new_folder } from "@/services/logic";
+import { get_all_folder_names, get_all_notes, delete_folder, make_new_folder, get_all_notes_in_folder, get_note_by_id } from "@/services/logic";
 
 
 interface Note {
@@ -16,27 +16,45 @@ interface Note {
 export default function Index() {
   const [folders, setFolders] = React.useState<string[]>(['favs', 'lols']) // Changed the type to string array
   const [notes, setNotes] = React.useState<Note[]>([]);
+
+  const [filterFolders, setFilterFolders] = React.useState<string[]>([])
+
+
   const fetchFolders = async () => {
     const folderNames = await get_all_folder_names()
     setFolders(folderNames)
   }
   const fetchNotes = async () => {
-    const allNotes = await get_all_notes();
-    console.log(allNotes);
-    setNotes(allNotes);
+    if (filterFolders.length === 0) {
+      const allNotes = await get_all_notes();
+      setNotes(allNotes);
+    } else {
+      const toPut = []
+      for (let index = 0; index < filterFolders.length; index++) {
+        const tempoFetch = await get_all_notes_in_folder(filterFolders[index])
+        toPut.push(tempoFetch.flat())
+        const note_ = await get_note_by_id(toPut[0][0])
+        console.log(note_);
+        
+      }
+
+
+    }
     return;
   }
   const fetchData = async () => {
     await fetchFolders();
     await fetchNotes();
   };
+  fetchData();
   React.useEffect(() => {
 
 
-    fetchData();
+
   }, []); // Empty dependency array to run only on mount
 
   return (
+
     <View
       style={{
         flex: 1,
@@ -44,7 +62,7 @@ export default function Index() {
       }}
     >
       <Navbar />
-      <FolderBar folders={folders} setFolders={setFolders} />
+      <FolderBar filterFolders={filterFolders} setFilterFolders={setFilterFolders} folders={folders} setFolders={setFolders} />
       <NotesDisplay notes={notes} />
       <View style={{
         position: 'absolute',
@@ -122,8 +140,10 @@ const Navbar = () => {
 interface FolderBarProps {
   folders: string[]; // Adjusted the type to string array
   setFolders: React.Dispatch<React.SetStateAction<string[]>>; // Added setFolders
+  setFilterFolders: React.Dispatch<React.SetStateAction<string[]>>; // Added setFilterFolders,
+  filterFolders: string[]
 }
-const FolderBar: React.FC<FolderBarProps> = ({ folders, setFolders }) => {
+const FolderBar: React.FC<FolderBarProps> = ({ folders, setFolders, setFilterFolders, filterFolders }) => {
   const [deleteModalVisible, setDeleteModalVisible] = React.useState(false); // Separate modal for deletion
   const [createModalVisible, setCreateModalVisible] = React.useState(false); // Separate modal for creating
   const [selectedFolder, setSelectedFolder] = React.useState<string | null>(null);
@@ -132,6 +152,14 @@ const FolderBar: React.FC<FolderBarProps> = ({ folders, setFolders }) => {
   const handleLongPress = (folderName: string) => {
     setSelectedFolder(folderName);
     setDeleteModalVisible(true); // Open delete modal
+  };
+
+  const toggleFolderInFilter = (folderName: string) => {
+    setFilterFolders(prev =>
+      prev.includes(folderName)
+        ? prev.filter(folder => folder !== folderName)
+        : [...prev, folderName]
+    );
   };
 
   const confirmDelete = async () => {
@@ -183,13 +211,14 @@ const FolderBar: React.FC<FolderBarProps> = ({ folders, setFolders }) => {
           <Pressable
             key={index}
             onLongPress={() => handleLongPress(folder)}
+            onPress={() => toggleFolderInFilter(folder)} // Toggle folder on single press
             style={({ pressed }) => [
               {
                 borderRadius: 24,
                 marginRight: 4,
                 padding: 8,
                 paddingHorizontal: 24,
-                backgroundColor: "lightgray",
+                backgroundColor: filterFolders.includes(folder) ? "#333333" : "lightgray", // Change background color based on filterFolders to a premium green and gray
                 flexDirection: "column",
                 justifyContent: "center",
                 alignItems: "center",
@@ -197,14 +226,13 @@ const FolderBar: React.FC<FolderBarProps> = ({ folders, setFolders }) => {
               pressed && { backgroundColor: "gray" },
             ]}
           >
-            <Text style={{ textAlign: "center" }}>{folder}</Text>
+            <Text style={{ textAlign: "center", color: filterFolders.includes(folder) ? "white" : "black" }}>{folder}</Text> {/* Change text color based on filterFolders */}
           </Pressable>
         ))}
       </ScrollView>
 
       {/* Confirmation Modal for Deleting Folder */}
       <Modal
-        animationType="slide"
         transparent={true}
         visible={deleteModalVisible} // Bind to delete modal visibility
         onRequestClose={() => setDeleteModalVisible(false)}
@@ -214,7 +242,7 @@ const FolderBar: React.FC<FolderBarProps> = ({ folders, setFolders }) => {
             flex: 1,
             justifyContent: "center",
             alignItems: "center",
-            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            backgroundColor: "rgba(0, 0, 0, 0.1)",
           }}
         >
           <View
@@ -222,20 +250,41 @@ const FolderBar: React.FC<FolderBarProps> = ({ folders, setFolders }) => {
               width: 300,
               backgroundColor: "white",
               borderRadius: 10,
-              padding: 20,
               alignItems: "center",
+              overflow: 'hidden',
+              borderColor: 'lightgray',
+              borderWidth: 1,
+
             }}
           >
-            <Text style={{ marginBottom: 20 }}>
+            <Text style={{ marginBottom: 20, padding: 20, }}>
               Are you sure you want to delete "{selectedFolder}"?
             </Text>
-            <View style={{ flexDirection: "row", justifyContent: "space-around" }}>
-              <Button
-                title="Cancel"
+            <View style={{ flexDirection: "row", justifyContent: "center" }}>
+              <Pressable
+
                 onPress={() => setDeleteModalVisible(false)}
-                color="gray"
-              />
-              <Button title="Delete" onPress={confirmDelete} color="red" />
+                style={{
+                  backgroundColor: 'white',
+                  padding: 20,
+                  width: '50%',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderTopColor: 'lightgray',
+                  borderTopWidth: 1,
+                }}
+              ><Text>Cancel</Text></Pressable>
+              <Pressable onPress={confirmDelete} style={{
+                backgroundColor: 'white',
+                padding: 20,
+                width: '50%',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderTopColor: 'lightgray',
+                borderLeftColor: 'lightgray',
+                borderTopWidth: 1,
+                borderLeftWidth: 1,
+              }}><Text style={{ color: 'red' }}>Delete</Text></Pressable>
             </View>
           </View>
         </View>
@@ -243,7 +292,6 @@ const FolderBar: React.FC<FolderBarProps> = ({ folders, setFolders }) => {
 
       {/* Modal for Creating New Folder */}
       <Modal
-        animationType="slide"
         transparent={true}
         visible={createModalVisible} // Bind to create modal visibility
         onRequestClose={() => setCreateModalVisible(false)}
@@ -253,7 +301,7 @@ const FolderBar: React.FC<FolderBarProps> = ({ folders, setFolders }) => {
             flex: 1,
             justifyContent: "center",
             alignItems: "center",
-            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            backgroundColor: "rgba(0, 0, 0, 0.1)",
           }}
         >
           <View
@@ -261,30 +309,60 @@ const FolderBar: React.FC<FolderBarProps> = ({ folders, setFolders }) => {
               width: 300,
               backgroundColor: "white",
               borderRadius: 10,
-              padding: 20,
               alignItems: "center",
+              overflow: 'hidden',
+              borderColor: 'lightgray',
+              borderWidth: 1,
+
             }}
           >
-            <Text style={{ marginBottom: 20 }}>Enter new folder name:</Text>
-            <TextInput
-              value={newFolderName}
-              onChangeText={setNewFolderName}
-              placeholder="Folder Name"
-              style={{
-                borderWidth: 1,
-                borderColor: 'lightgray',
-                width: '100%',
-                marginBottom: 20,
-                padding: 10,
-              }}
-            />
-            <View style={{ flexDirection: "row", justifyContent: "space-around" }}>
-              <Button
-                title="Cancel"
-                onPress={() => setCreateModalVisible(false)}
-                color="gray"
+            <View style={{
+              padding: 20,
+              width: '90%'
+            }}>
+              <TextInput
+                value={newFolderName}
+                onChangeText={setNewFolderName}
+                placeholder="Folder Name"
+                style={{
+                  borderWidth: 1,
+                  borderColor: 'lightgray',
+                  width: '100%',
+                  fontWeight: '600',
+                  borderRadius: 20,
+                  marginBottom: 20,
+                  padding: 20,
+                }}
               />
-              <Button title="Create" onPress={createNewFolder} color="blue" />
+            </View>
+            <View style={{ flexDirection: "row", justifyContent: "center" }}>
+              <Pressable
+                onPress={() => setCreateModalVisible(false)}
+                style={{
+                  backgroundColor: 'white',
+                  padding: 20,
+                  width: '50%',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderTopColor: 'lightgray',
+                  borderTopWidth: 1,
+                }}
+              ><Text style={{
+                color: 'red',
+              }}>Cancel</Text></Pressable>
+              <Pressable onPress={createNewFolder} style={{
+                backgroundColor: 'white',
+                padding: 20,
+                width: '50%',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderTopColor: 'lightgray',
+                borderLeftColor: 'lightgray',
+                borderTopWidth: 1,
+                borderLeftWidth: 1,
+              }}><Text style={{
+                color: 'darkblue',
+              }}>Create Folder</Text></Pressable>
             </View>
           </View>
         </View>
@@ -347,6 +425,6 @@ const styles = StyleSheet.create({
   onPressed2: {
     backgroundColor: 'lightgray',
     transform: [{ scale: 0.95 }],
-    transitionDuration: '1s',
+    transitionDuration: '100ms', // Changed to 100ms
   }
 })

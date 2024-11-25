@@ -92,16 +92,19 @@ const Write: React.FC = () => {
             paddingTop: 24,
             paddingHorizontal: 20,
         }}>
-            <TextInput style={{
-                marginTop: 40,
-                padding: 20,
-                borderRadius: 24,
-                paddingHorizontal: 30,
-                fontSize: 24,
-                fontWeight: '900',
-                borderWidth: 1,
-                borderColor: 'lightgray'
-            }} placeholder='Type a title...' />
+            <TextInput
+                value={noteTitle} // Set the value to noteTitle state
+                onChangeText={setNoteTitle} // Update state on text change
+                style={{
+                    marginTop: 40,
+                    padding: 20,
+                    borderRadius: 24,
+                    paddingHorizontal: 30,
+                    fontSize: 24,
+                    fontWeight: '900',
+                    borderWidth: 1,
+                    borderColor: 'lightgray'
+                }} placeholder='Type a title...' />
             <TextInput multiline style={{
                 padding: 20,
                 marginTop: 20,
@@ -113,7 +116,8 @@ const Write: React.FC = () => {
                 borderWidth: 1,
                 borderColor: 'lightgray',
                 textAlignVertical: 'top'
-            }} placeholder='Note your thoughts...'></TextInput>
+            }} placeholder='Note your thoughts...'
+                value={noteText} onChangeText={setNoteText} />
         </View>
 
 
@@ -125,6 +129,7 @@ const Write: React.FC = () => {
             onSelectFolder={setSelectedFolder}
             onSave={() => {
                 console.log(`Note saved to folder: ${selectedFolder}`)
+                HandleSaveNote()
                 setModalVisible(false)
                 router.back()
             }}
@@ -144,7 +149,6 @@ interface FolderSelectModalProps {
     onSelectFolder: (folder: string) => void
     onSave: () => void
 }
-
 const FolderSelectModal: React.FC<FolderSelectModalProps> = ({
     visible,
     folders,
@@ -153,10 +157,10 @@ const FolderSelectModal: React.FC<FolderSelectModalProps> = ({
     onSelectFolder,
     onSave,
 }) => {
+    
     return (
         <Modal
             visible={visible}
-            animationType="slide"
             transparent={true}
             onRequestClose={onClose}
         >

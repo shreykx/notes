@@ -68,12 +68,15 @@ export async function create_note_in_folder(note_title: string, note_text: strin
     const data = await readData();
 
     const note_id = `note_${new Date().getTime()}`;
+
+    
     const note = {
         note_id: note_id,
         note_title: note_title,
         note_text: note_text,
         date_of_note: note_date,
     };
+    
 
     if (!data[folder_name]) {
         data[folder_name] = {};
@@ -114,4 +117,17 @@ async function delete_all_notes() {
     } catch (error) {
         console.error('Error deleting all notes:', error);
     }
+}
+
+export async function get_note_by_id(note_id: string) {
+    const data = await readData();
+    
+    for (const folder_name in data) {
+        const notesInFolder = data[folder_name];
+        if (notesInFolder[note_id]) {
+            return notesInFolder[note_id];
+        }
+    }
+    
+    return null; // Return null if the note is not found
 }
