@@ -136,7 +136,7 @@ const Navbar = () => {
       }} style={({ pressed }) => [
         pressed && styles.onPressed
       ]}>
-        <MaterialIcons name="explore" size={30} color="black" />
+        <MaterialIcons name="explore" size={30} color="#ff5757" />
       </Pressable>
     </View>
   </View>)
@@ -222,7 +222,7 @@ const FolderBar: React.FC<FolderBarProps> = ({ folders, setFolders, setFilterFol
                 marginRight: 4,
                 padding: 8,
                 paddingHorizontal: 24,
-                backgroundColor: filterFolders.includes(folder) ? "#333333" : "lightgray", // Change background color based on filterFolders to a premium green and gray
+                backgroundColor: filterFolders.includes(folder) ? "#ff5757" : "lightgray", // Change background color based on filterFolders to a premium green and gray
                 flexDirection: "column",
                 justifyContent: "center",
                 alignItems: "center",
@@ -278,7 +278,7 @@ const FolderBar: React.FC<FolderBarProps> = ({ folders, setFolders, setFilterFol
                   borderTopWidth: 1,
                 }}
               ><Text style={{
-                color: 'blue'
+                color: 'blue', fontWeight: '800', fontSize: 20,
               }}>Cancel</Text></Pressable>
               <Pressable onPress={confirmDelete} style={{
                 backgroundColor: 'white',
@@ -290,7 +290,7 @@ const FolderBar: React.FC<FolderBarProps> = ({ folders, setFolders, setFilterFol
                 borderLeftColor: 'lightgray',
                 borderTopWidth: 1,
                 borderLeftWidth: 1,
-              }}><Text style={{ color: 'red' }}>Delete</Text></Pressable>
+              }}><Text style={{ color: '#ff5757', fontWeight: '800', fontSize: 20, }}>Delete</Text></Pressable>
             </View>
           </View>
         </View>
@@ -335,7 +335,7 @@ const FolderBar: React.FC<FolderBarProps> = ({ folders, setFolders, setFilterFol
                   fontWeight: '600',
                   borderRadius: 20,
                   marginBottom: 20,
-                  padding: 20,
+                  padding: 10,
                   fontSize: 23,
                 }}
               />
@@ -353,7 +353,7 @@ const FolderBar: React.FC<FolderBarProps> = ({ folders, setFolders, setFilterFol
                   borderTopWidth: 1,
                 }}
               ><Text style={{
-                color: 'red',
+                color: 'blue', fontWeight: '800', fontSize: 20
               }}>Cancel</Text></Pressable>
               <Pressable onPress={createNewFolder} style={{
                 backgroundColor: 'white',
@@ -366,7 +366,7 @@ const FolderBar: React.FC<FolderBarProps> = ({ folders, setFolders, setFilterFol
                 borderTopWidth: 1,
                 borderLeftWidth: 1,
               }}><Text style={{
-                color: 'darkblue',
+                color: '#ff5757', fontWeight: '800', fontSize: 20
               }}>Create Folder</Text></Pressable>
             </View>
           </View>
