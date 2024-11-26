@@ -3,6 +3,7 @@ import Feather from '@expo/vector-icons/Feather';
 import React from "react";
 import { router } from "expo-router";
 import { get_all_folder_names, get_all_notes, delete_folder, make_new_folder, get_all_notes_in_folder, get_note_by_id } from "@/services/logic";
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 
 interface Note {
@@ -29,18 +30,14 @@ export default function Index() {
       const allNotes = await get_all_notes();
       setNotes(allNotes);
     } else {
-      const toPut = []
-      for (let index = 0; index < filterFolders.length; index++) {
-        const tempoFetch = await get_all_notes_in_folder(filterFolders[index])
-        toPut.push(tempoFetch.flat())
-        const note_ = await get_note_by_id(toPut[0][0])
-        console.log(note_);
-        
-      }
-
-
+      const notesPromises = filterFolders.map(async (folder) => {
+        const all_note_ids = await get_all_notes_in_folder(folder);
+        const notes = await Promise.all(all_note_ids.map(async (id: any) => await get_note_by_id(`${id}`)));
+        return notes;
+      });
+      const notesArray = await Promise.all(notesPromises);
+      setNotes(notesArray.flat()); // Flatten the array of notes
     }
-    return;
   }
   const fetchData = async () => {
     await fetchFolders();
@@ -129,10 +126,12 @@ const Navbar = () => {
       alignItems: 'flex-end',
       justifyContent: 'flex-end'
     }}>
-      <Pressable style={({ pressed }) => [
+      <Pressable onPress={() => {
+        router.push('/settings')
+      }} style={({ pressed }) => [
         pressed && styles.onPressed
       ]}>
-        <Feather name="compass" size={24} color="black" />
+        <MaterialIcons name="settings" size={24} color="black" />
       </Pressable>
     </View>
   </View>)
