@@ -108,14 +108,19 @@ const Navbar = () => {
       style={{
         flexDirection: 'row',
         width: '50%',
-        padding: 2,
+        padding: 0,
         alignItems: "flex-start",
         justifyContent: "flex-start"
       }}
     >
       <Text style={{
         fontSize: 24,
-        fontWeight: '800'
+        backgroundColor: "#333333",
+        paddingHorizontal: 10,
+        paddingVertical: 4,
+        borderRadius: 10,
+        color: 'white',
+        fontWeight: '700'
       }}>Notes</Text>
     </View>
 
@@ -131,7 +136,7 @@ const Navbar = () => {
       }} style={({ pressed }) => [
         pressed && styles.onPressed
       ]}>
-        <MaterialIcons name="settings" size={24} color="black" />
+        <MaterialIcons name="explore" size={30} color="black" />
       </Pressable>
     </View>
   </View>)
@@ -248,7 +253,7 @@ const FolderBar: React.FC<FolderBarProps> = ({ folders, setFolders, setFilterFol
             style={{
               width: 300,
               backgroundColor: "white",
-              borderRadius: 10,
+              borderRadius: 20,
               alignItems: "center",
               overflow: 'hidden',
               borderColor: 'lightgray',
@@ -272,7 +277,9 @@ const FolderBar: React.FC<FolderBarProps> = ({ folders, setFolders, setFilterFol
                   borderTopColor: 'lightgray',
                   borderTopWidth: 1,
                 }}
-              ><Text>Cancel</Text></Pressable>
+              ><Text style={{
+                color: 'blue'
+              }}>Cancel</Text></Pressable>
               <Pressable onPress={confirmDelete} style={{
                 backgroundColor: 'white',
                 padding: 20,
@@ -307,7 +314,7 @@ const FolderBar: React.FC<FolderBarProps> = ({ folders, setFolders, setFilterFol
             style={{
               width: 300,
               backgroundColor: "white",
-              borderRadius: 10,
+              borderRadius: 20,
               alignItems: "center",
               overflow: 'hidden',
               borderColor: 'lightgray',
@@ -324,13 +331,12 @@ const FolderBar: React.FC<FolderBarProps> = ({ folders, setFolders, setFilterFol
                 onChangeText={setNewFolderName}
                 placeholder="Folder Name"
                 style={{
-                  borderWidth: 1,
-                  borderColor: 'lightgray',
                   width: '100%',
                   fontWeight: '600',
                   borderRadius: 20,
                   marginBottom: 20,
                   padding: 20,
+                  fontSize: 23,
                 }}
               />
             </View>

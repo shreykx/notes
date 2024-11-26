@@ -157,7 +157,7 @@ const FolderSelectModal: React.FC<FolderSelectModalProps> = ({
     onSelectFolder,
     onSave,
 }) => {
-    
+
     return (
         <Modal
             visible={visible}
@@ -176,43 +176,59 @@ const FolderSelectModal: React.FC<FolderSelectModalProps> = ({
                     style={{
                         width: '80%',
                         backgroundColor: 'white',
-                        borderRadius: 16,
-                        padding: 20,
+                        borderRadius: 20,
+                        padding: 0,
+                        overflow: 'hidden'
                     }}
                 >
-                    <Text
-                        style={{
-                            fontSize: 20,
-                            fontWeight: '700',
-                            marginBottom: 16,
-                        }}
-                    >
-                        Select Folder
-                    </Text>
-
-                    <FlatList
-                        data={folders}
-                        keyExtractor={(item) => item}
-                        renderItem={({ item }) => (
-                            <Pressable
-                                onPress={() => onSelectFolder(item)}
-                                style={{
-                                    padding: 12,
-                                    marginBottom: 10,
-                                    borderRadius: 8,
-                                    backgroundColor: selectedFolder === item ? '#007AFF' : '#f0f0f0',
-                                }}
-                            >
-                                <Text
+                    <View style={{
+                        paddingHorizontal: 20,
+                        paddingVertical: 10,
+                        marginBottom: 4,
+                    }}>
+                        <Text
+                            style={{
+                                fontSize: 20,
+                                fontWeight: '700',
+                            }}
+                        >
+                            Select Folder
+                        </Text>
+                        <Text style={{
+                            paddingVertical: 4,
+                            color: 'gray'
+                        }}>Select the folder you want your note to be saved in.</Text>
+                    </View>
+                    <View style={{
+                        padding: 20,
+                    }}>
+                        <FlatList
+                            data={folders}
+                            style={{
+                                borderRadius: 20,
+                            }}
+                            keyExtractor={(item) => item}
+                            renderItem={({ item }) => (
+                                <Pressable
+                                    onPress={() => onSelectFolder(item)}
                                     style={{
-                                        color: selectedFolder === item ? 'white' : 'black',
+                                        padding: 12,
+                                        marginBottom: 0,
+                                        borderRadius: 0,
+                                        backgroundColor: selectedFolder === item ? '#333333' : 'whitesmoke',
                                     }}
                                 >
-                                    {item}
-                                </Text>
-                            </Pressable>
-                        )}
-                    />
+                                    <Text
+                                        style={{
+                                            color: selectedFolder === item ? 'white' : 'black',
+                                        }}
+                                    >
+                                        {item}
+                                    </Text>
+                                </Pressable>
+                            )}
+                        />
+                    </View>
                     <Pressable
                         onPress={onSave}
                         style={({ pressed }) => [
@@ -220,7 +236,6 @@ const FolderSelectModal: React.FC<FolderSelectModalProps> = ({
                                 marginTop: 16,
                                 padding: 12,
                                 backgroundColor: '#333333',
-                                borderRadius: 8,
                                 alignItems: 'center',
                             },
                             pressed && {
@@ -232,6 +247,7 @@ const FolderSelectModal: React.FC<FolderSelectModalProps> = ({
                             style={{
                                 color: 'white',
                                 fontWeight: '700',
+                                fontSize: 20,
                             }}
                         >
                             Save
